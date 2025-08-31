@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="lm_project_git.GitConnectionStatus" owl="1">
+        <span t-if="props.record.data[props.name]" class="text-success">
+            <i class="fa fa-check-circle me-1"/> Connected
+        </span>
+        <span t-else="" class="text-danger">
+            <i class="fa fa-exclamation-triangle me-1"/> Not connected
+        </span>
+    </t>
+</templates>

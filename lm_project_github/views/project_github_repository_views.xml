@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="project_github_repository_form_view" model="ir.ui.view">
+            <field name="name">project.github.repository.form</field>
+            <field name="model">project.github.repository</field>
+            <field name="arch" type="xml">
+                <form string="Git Repository">
+                    <header>
+                        <button name="action_connect_repository" string="Connect Repository"
+                                type="object" class="oe_highlight" invisible="connected"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" placeholder="e. g. lm_project_github"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="project_id" invisible="not project_id"/>
+                                <field name="commit_code"/>
+                                <field name="description"/>
+                            </group>
+                            <group>
+                                <field name="repository" placeholder="e. g. lemacore/lm_project_github"/>
+                                <field name="url" widget="url"/>
+                                <field name="connected" invisible="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="project_github_repository_tree_view" model="ir.ui.view">
+            <field name="name">project.github.repository.tree</field>
+            <field name="model">project.github.repository</field>
+            <field name="arch" type="xml">
+                <list string="Git Repository">
+                    <field name="name"/>
+                    <field name="project_id" invisible="not project_id"/>
+                    <field name="url"/>
+                    <field name="commit_code"/>
+                    <field name="active" widget="boolean_toggle" readonly="1"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="project_github_repository_search_view" model="ir.ui.view">
+            <field name="name">project.github.repository.search</field>
+            <field name="model">project.github.repository</field>
+            <field name="arch" type="xml">
+                <search string="Git Repository">
+                    <field name="name"/>
+                    <field name="project_id"/>
+                    <group expand="1" string="Group By">
+                        <filter string="Project" name="group_by_project_id" domain="[]"
+                                context="{'group_by':'project_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="project_github_repository_act_window" model="ir.actions.act_window">
+            <field name="name">Github Repository</field>
+            <field name="res_model">project.github.repository</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No Git Repository found.
+                </p>
+                <p>
+                    There is no examples click here to add new Git Repository.
+                </p>
+            </field>
+        </record>
+
+        <menuitem name="Github Repository" id="project_github_repository_menu"
+                  sequence="24" parent="project.menu_project_config"
+                  action="project_github_repository_act_window"
+                  groups="lm_project_github.group_git_integration"/>
+
+    </data>
+</odoo>

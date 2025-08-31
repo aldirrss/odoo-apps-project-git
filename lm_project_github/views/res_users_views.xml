@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_users_tree_inherit_git" model="ir.ui.view">
+            <field name="name">res.users.tree.git</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//list" position="inside">
+                    <field name="is_connected" string="GitHub" widget="git_connection_status" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_users_form_gitlab" model="ir.ui.view">
+            <field name="name">res.users.form.gitlab</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[3]" position="after">
+                    <page string="Git Integration" name="git_integration">
+                        <group>
+                            <group col="1">
+                                <h3><i class="fa fa-github me-1"/> GitHub Credentials</h3>
+                                <div class="alert alert-info mb-2" role="alert">
+                                    <i class="fa fa-info-circle"/>
+                                    It is recommended to use a <a
+                                        href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token"
+                                        target="_blank">Personal Access Token
+                                </a> with <code>repo</code> and <code>read:org</code> scopes.
+                                </div>
+                                <field name="git_username" invisible="not git_username"/>
+                                <field name="git_token" password="True" invisible="not git_token"/>
+                                <field name="is_connected" invisible="1"/>
+                                <span invisible="not is_connected" class="text-success">
+                                    <i class="fa fa-check-circle"/>
+                                    Connected to GitHub
+                                </span>
+                                <span invisible="is_connected"
+                                      class="text-danger">
+                                    <i class="fa fa-exclamation-triangle"/>
+                                    Not connected to GitHub
+                                </span>
+                                <div class="d-flex gap-2 mt-2">
+                                    <button name="action_config_git_connection" type="object"
+                                            string="Connect to GitHub" class="btn btn-secondary"
+                                            icon="fa-github" context="{'git_provider': 'github'}"/>
+                                    <button name="action_test_git_connection" type="object" string="Test Connection"
+                                            class="btn btn-secondary"
+                                            icon="fa-refresh" invisible="not git_username or not git_token"/>
+                                    <button name="action_clear_git_connection" type="object" string="Clear Credentials"
+                                            class="btn btn-secondary"
+                                            confirm="Are you sure you want to clear your GitHub credentials?"
+                                            icon="fa-eraser" invisible="not is_connected"/>
+                                </div>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
