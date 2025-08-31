@@ -10,6 +10,16 @@
                     <header>
                         <button name="action_connect_repository" string="Connect Repository"
                                 type="object" class="oe_highlight" invisible="connected"/>
+                        <button name="action_create_webhook" string="Create Webhook"
+                                type="object" class="oe_highlight" invisible="not connected"/>
+                        <button name="action_delete_webhook" string="Delete Webhook"
+                                type="object" class="oe_highlight" invisible="not connected"/>
+                        <button name="action_create_branch" string="Create Branch"
+                                type="object" class="oe_highlight" invisible="not connected"/>
+                        <button name="action_sync_branch" string="Sync Branch"
+                                type="object" class="oe_highlight" invisible="not connected"/>
+                        <button name="action_delete_branch" string="Delete Branch"
+                                type="object" class="oe_highlight" invisible="not connected"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -21,7 +31,7 @@
                         <group>
                             <group>
                                 <field name="project_id" invisible="not project_id"/>
-                                <field name="commit_code"/>
+                                <field name="commit_prefix"/>
                                 <field name="description"/>
                             </group>
                             <group>

@@ -18,7 +18,7 @@ class ProjectGithubRepository(models.Model):
         ondelete="cascade",
         readonly=True,
     )
-    commit_code = fields.Char(string="Commit Code", size=5, tracking=True)
+    commit_prefix = fields.Char(string="Commit Code", size=5, tracking=True)
     active = fields.Boolean(string="Active", default=True, tracking=True)
     connected = fields.Boolean(string="Connected", default=False)
 
@@ -87,3 +87,18 @@ class ProjectGithubRepository(models.Model):
                 </div>
             </div>
         """
+
+    def action_create_webhook(self):
+        pass
+
+    def action_delete_webhook(self):
+        pass
+
+    def action_create_branch(self):
+        pass
+
+    def action_sync_branch(self):
+        pass
+
+    def action_delete_branch(self):
+        pass
