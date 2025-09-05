@@ -54,7 +54,7 @@
                     <field name="name"/>
                     <field name="project_id" invisible="not project_id"/>
                     <field name="url"/>
-                    <field name="commit_code"/>
+                    <field name="commit_prefix"/>
                     <field name="active" widget="boolean_toggle" readonly="1"/>
                 </list>
             </field>
