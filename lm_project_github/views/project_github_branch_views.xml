@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="project_task_git_branch_tree_view" model="ir.ui.view">
-            <field name="name">project.task.git.branch.tree</field>
-            <field name="model">project.task.git.branch</field>
+        <record id="project_github_branch_tree_view" model="ir.ui.view">
+            <field name="name">project.github.branch.tree</field>
+            <field name="model">project.github.branch</field>
             <field name="arch" type="xml">
                 <list string="Git Branch">
                     <field name="name"/>
-                    <field name="task_id"/>
-                    <field name="default"/>
+                    <field name="repository_id"/>
                     <field name="protected"/>
                     <field name="color" widget="color_picker"/>
                 </list>

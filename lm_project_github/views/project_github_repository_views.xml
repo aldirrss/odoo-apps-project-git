@@ -9,37 +9,51 @@
                 <form string="Git Repository">
                     <header>
                         <button name="action_connect_repository" string="Connect Repository"
-                                type="object" class="oe_highlight" invisible="connected"/>
+                                type="object" class="oe_highlight" invisible="is_connected"/>
                         <button name="action_create_webhook" string="Create Webhook"
-                                type="object" class="oe_highlight" invisible="not connected"/>
-                        <button name="action_delete_webhook" string="Delete Webhook"
-                                type="object" class="oe_highlight" invisible="not connected"/>
+                                type="object" class="oe_highlight" invisible="not is_connected"/>
                         <button name="action_create_branch" string="Create Branch"
-                                type="object" class="oe_highlight" invisible="not connected"/>
+                                type="object" class="oe_highlight" invisible="not is_connected"/>
+                        <button name="action_delete_webhook" string="Delete Webhook"
+                                type="object" invisible="not is_connected"/>
                         <button name="action_sync_branch" string="Sync Branch"
-                                type="object" class="oe_highlight" invisible="not connected"/>
+                                type="object" invisible="not is_connected"/>
                         <button name="action_delete_branch" string="Delete Branch"
-                                type="object" class="oe_highlight" invisible="not connected"/>
+                                type="object" invisible="not is_connected"/>
                     </header>
                     <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_branches" class="oe_stat_button"
+                                    icon="fa-github" type="object" invisible="not is_connected">
+                                <field name="branch_count" widget="statinfo" string="Branch"/>
+                            </button>
+                        </div>
+                        <field name="images" widget="image" class="oe_avatar" invisible="not is_connected"/>
                         <div class="oe_title">
                             <label for="name"/>
                             <h1>
-                                <field name="name" placeholder="e. g. lm_project_github"/>
+                                <field name="name" placeholder="e. g. lm_project_github"
+                                       readonly="is_connected"/>
                             </h1>
                         </div>
                         <group>
                             <group>
                                 <field name="project_id" invisible="not project_id"/>
                                 <field name="commit_prefix"/>
-                                <field name="description"/>
                             </group>
                             <group>
-                                <field name="repository" placeholder="e. g. lemacore/lm_project_github"/>
+                                <field name="date_connected" invisible="not is_connected"/>
+                                <field name="github_id" invisible="not is_connected"/>
+                                <field name="owner" readonly="is_connected"/>
                                 <field name="url" widget="url"/>
-                                <field name="connected" invisible="1"/>
+                                <field name="is_connected" invisible="1"/>
                             </group>
                         </group>
+                        <notebook>
+                            <page string="Description">
+                                <field name="description" nolabel="1" placeholder="Add description here..."/>
+                            </page>
+                        </notebook>
                     </sheet>
                     <chatter/>
                 </form>
@@ -51,6 +65,10 @@
             <field name="model">project.github.repository</field>
             <field name="arch" type="xml">
                 <list string="Git Repository">
+                    <header>
+                        <button name="action_create_repository" string="Create Repository"
+                                type="object" display="always"/>
+                    </header>
                     <field name="name"/>
                     <field name="project_id" invisible="not project_id"/>
                     <field name="url"/>

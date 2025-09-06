@@ -7,7 +7,7 @@ class ProjectProject(models.Model):
     github_repository_id = fields.Many2one(
         comodel_name="project.github.repository",
         string="GitHub Repository",
-        domain="[('project_id', '=', False)]",
+        domain="[('project_id', '=', False), ('is_connected', '!=', False)]",
         ondelete="set null",
         tracking=True,
     )
