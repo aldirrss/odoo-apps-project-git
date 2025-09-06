@@ -1,7 +1,7 @@
 import requests
 from markupsafe import Markup
 from odoo import fields, models, api, _
-from odoo.api import ValuesType, Self
+import base64
 from odoo.exceptions import UserError
 
 
@@ -10,7 +10,11 @@ class ProjectGithubRepository(models.Model):
     _description = "Project Github Repository"
     _inherit = ["mail.thread", "mail.activity.mixin"]
 
-    name = fields.Char(string="Display Name", required=True, tracking=True)
+    _sql_constraints = [
+        ('owner_name_uniq', 'unique(owner, name)', 'The repository name must be unique per owner!'),
+    ]
+
+    name = fields.Char(string="Repository", required=True, tracking=True)
     description = fields.Text(string="Description")
     project_id = fields.Many2one(
         comodel_name="project.project",
@@ -19,11 +23,13 @@ class ProjectGithubRepository(models.Model):
         readonly=True,
     )
     commit_prefix = fields.Char(string="Commit Code", size=5, tracking=True)
+    images = fields.Binary(string="Image", attachment=True)
     active = fields.Boolean(string="Active", default=True, tracking=True)
-    connected = fields.Boolean(string="Connected", default=False)
+    is_connected = fields.Boolean(string="Connected", default=False)
 
-    # GitHub specific fields
-    repository = fields.Char(string="Repository Name", help="Format: owner/repo")
+    owner = fields.Char(string="Owner", required=True, tracking=True)
+    # load image from github api
+    avatar_url = fields.Char(string="Avatar URL", readonly=True)
     url = fields.Char(string="URL")
 
     def copy(self, default=None):
@@ -39,7 +45,7 @@ class ProjectGithubRepository(models.Model):
 
     def action_connect_repository(self):
         self.ensure_one()
-        if not self.repository:
+        if not self.name:
             raise UserError(_("Repository name is not set."))
 
         token = self.env.user.git_token
@@ -50,38 +56,41 @@ class ProjectGithubRepository(models.Model):
 
         try:
             response = requests.get(
-                f'{base_url}/repos/{self.repository}',
+                f'{base_url}/repos/{self.name}',
                 headers=self._header_authentication(),
                 timeout=10
             )
             if response.status_code == 200:
                 repo_data = response.json()
+                avatar_url = repo_data.get('owner', {}).get('avatar_url', '')
+                image = base64.b64encode(requests.get(avatar_url.strip()).content).replace(b"\n", b"")
                 self.write({
                     'description': repo_data.get('description', ''),
                     'url': repo_data.get('html_url', ''),
-                    'connected': True,
+                    'avatar_url': repo_data.get('owner', {}).get('avatar_url', ''),
+                    'is_connected': True,
                 })
                 message = {
                     'message': _("Connected to GitHub repository successfully."),
                     'action_link': repo_data.get('html_url', ''),
-                    'action_text': _("View Repository"),
+                    'action_text': _("View"),
                 }
                 self.message_post(body=Markup(self._get_log_message_template()).format(**message))
             else:
-                self.write({'connected': False})
+                self.write({'is_connected': False})
                 raise UserError(_("Failed to connect to the repository. Please check the repository name and your credentials."))
         except requests.RequestException as e:
-            self.write({'connected': False})
+            self.write({'is_connected': False})
             raise UserError(_("An error occurred while connecting to GitHub: %s") % str(e))
 
     def _get_log_message_template(self):
         """Return HTML template for log message."""
         return """
-            <div style="background-color: #DDF4E7; padding: 15px; border-radius: 8px; border-left: 4px solid #67C090; margin: 8px 0;">
-                <p style="color: #495057;"><i class="fa fa-info-circle" style="margin-right: 8px;"></i>{message}</p>
-                <div style="margin-top: 8px;">
+            <div style="background-color: #DDF4E7; padding: 12px; border-radius: 8px; border-left: 4px solid #96CEB4">
+                <p style="color: #495057;">{message}</p>
+                <div style="text-align: right;">
                     <a href="{action_link}" 
-                       style="display: inline-block; padding: 8px 8px; background-color: #5D4765; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">
+                       style="color: #5D4765; text-decoration: underline; font-size: 12px;">
                         {action_text}
                     </a>
                 </div>
