@@ -3,6 +3,7 @@ from odoo.exceptions import UserError
 import requests
 import json
 import logging
+from markupsafe import Markup
 
 _logger = logging.getLogger(__name__)
 
@@ -80,6 +81,10 @@ class ProjectGithubConnectRepository(models.TransientModel):
     github_username = fields.Char(
         string="GitHub Username",
         help="Leave empty to fetch your own repositories"
+    )
+    date_connected = fields.Datetime(
+        string="Date Connected",
+        default=fields.Datetime.now,
     )
     company_id = fields.Many2one(
         comodel_name="res.company",
@@ -346,6 +351,7 @@ class ProjectGithubConnectRepository(models.TransientModel):
         preview_html += '<ul>'
         preview_html += f'<li><b>Project:</b> {self.project_id.name}</li>'
         preview_html += f'<li><b>Company:</b> {self.company_id.name}</li>'
+        preview_html += f'<li><b>Connected On:</b> {self.date_connected.strftime("%Y-%m-%d %H:%M:%S")}</li>'
         if repo.created_at:
             preview_html += f'<li><b>Repository Created:</b> {repo.created_at.strftime("%Y-%m-%d %H:%M:%S")}</li>'
         if repo.updated_at:
@@ -403,44 +409,73 @@ class ProjectGithubConnectRepository(models.TransientModel):
 
         repo = self.selected_repository_id
 
-        # Check if repository is already connected to this project
-        # existing_connection = self.env['project.github.repository'].search([
-        #     ('project_id', '=', self.project_id.id),
-        #     ('repository_full_name', '=', repo.full_name)
-        # ])
+        # Check if repository is already connected to other projects
+        existing_repos = self.env['project.github.repository'].search([
+            ('repository_id', '=', repo.repository_id),
+            ('full_name', '=', repo.full_name),
+            ('name', '=', repo.name),
+        ])
 
-        # if existing_connection:
-        #     raise UserError(_(
-        #         'Repository "%s" is already connected to project "%s".'
-        #     ) % (repo.full_name, self.project_id.name))
+        if existing_repos:
+            raise UserError(_(
+                'Repository "%s" is already connected to project "%s".'
+            ) % (repo.full_name, self.project_id.name))
 
         # Create the connection (adjust this based on your actual model structure)
         connection_vals = {
-            'project_id': self.project_id.id,
-            'repository_name': repo.name,
-            'repository_full_name': repo.full_name,
+            'name': repo.name,
             'repository_id': repo.repository_id,
             'owner': repo.owner,
             'description': repo.description,
             'private': repo.private,
+            'full_name': repo.full_name,
             'html_url': repo.html_url,
             'clone_url': repo.clone_url,
             'ssh_url': repo.ssh_url,
-            'default_branch': repo.default_branch,
             'language': repo.language,
             'stars_count': repo.stars_count,
             'forks_count': repo.forks_count,
+            'open_issues_count': repo.open_issues_count,
+            'archive': repo.archive,
+            'disabled': repo.disabled,
+            'visibility': repo.visibility,
+            'created_at': repo.created_at,
+            'updated_at': repo.updated_at,
+            'project_id': self.project_id.id,
             'company_id': self.company_id.id,
+            'is_connected': True,
         }
 
         try:
             # Create the repository connection
             # Note: Adjust the model name based on your actual implementation
-            # self.env['project.github.repository'].create(connection_vals)
+            repo_id = self.env['project.github.repository'].create(connection_vals)
+            # create or update the default branch record
+            branch_id = self._create_write_branches(repo.default_branch, repo_id.id)
+
+            # write the project fields to indicate GitHub connection
+            if repo_id:
+                self.project_id.write({
+                    'enable_github': True,
+                    'repository_id': repo_id.id if repo_id else existing_repos,
+                    'is_connected_github': True,
+                    'github_url': repo.html_url,
+                })
+
+            # Update the repository with the default branch
+            repo_id.write({'default_branch_id': branch_id.id})
 
             message = _(
                 'Repository "%s" has been successfully connected to project "%s".'
             ) % (repo.full_name, self.project_id.name)
+
+            # Log the connection in the project's chatter
+            template_message = {
+                'message': message,
+                'action_link': repo.html_url,
+                'action_text': _("View"),
+            }
+            self.project_id.message_post(body=Markup(self.project_id._get_log_message_template()).format(**template_message))
 
             return {
                 'type': 'ir.actions.client',
@@ -457,3 +492,21 @@ class ProjectGithubConnectRepository(models.TransientModel):
         except Exception as e:
             _logger.error(f"Error connecting repository: {e}")
             raise UserError(_('Failed to connect repository: %s') % str(e))
+
+    def _create_write_branches(self, default_branch, repo_id):
+        """Create or update the default branch record for the connected repository"""
+        branch_model = self.env['project.github.branch']
+        branch = branch_model.search([
+            ('name', '=', default_branch),
+            ('repository_id', '=', repo_id)
+        ], limit=1)
+
+        if not branch:
+            branch = branch_model.create({
+                'name': default_branch,
+                'repository_id': repo_id,
+                'is_default': True,
+            })
+        else:
+            branch.write({'is_default': True})
+        return branch

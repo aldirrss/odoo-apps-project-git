@@ -20,12 +20,12 @@
                             <setting class="col-lg-12" id="github_repository_setting" help="GitHub Repository" invisible="not enable_github" groups="lm_project_github.group_git_integration">
                                 <div class="content-group">
                                     <div class="row mt8" invisible="not is_connected_github">
-                                        <label for="github_repository" class="fw-bold o_form_label" string="Repository"/>
-                                        <field name="github_repository" class="oe_read_only d-inline" readonly="1" />
+                                        <label for="repository_id" class="fw-bold o_form_label oe_inline" string="Repository"/>
+                                        <field name="repository_id" class="oe_inline" readonly="1" />
                                     </div>
                                     <div class="row mt8" invisible="not is_connected_github">
-                                        <label for="github_url" class="fw-bold o_form_label" string="URL"/>
-                                        <field name="github_url" class="oe_read_only d-inline" readonly="1" />
+                                        <label for="github_url" class="fw-bold o_form_label oe_inline" string="URL"/>
+                                        <field name="github_url" class="oe_inline" readonly="1" />
                                     </div>
                                 </div>
                                 <button name="action_connect_repository" type="object"

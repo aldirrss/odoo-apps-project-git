@@ -23,10 +23,10 @@ class ProjectGithubBranch(models.Model):
         ondelete='cascade',
         help='GitHub Repository associated with this branch',
     )
-    protected = fields.Boolean(
-        string='Protected',
+    is_default = fields.Boolean(
+        string='Default Branch',
         default=False,
-        help='Indicates if this branch is protected',
+        help='Indicates if this branch is the default branch of the repository',
     )
     color = fields.Integer(string='Color Index', default=_get_default_color)
 
