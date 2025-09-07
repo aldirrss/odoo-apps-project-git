@@ -21,4 +21,6 @@ class Project(models.Model):
         }
 
     def action_connect_repository(self):
-        pass
+        action = self.env.ref('lm_project_github.action_project_github_connect_repository').read()[0]
+        action['context'] = {'default_project_id': self.id, 'default_github_username': self.env.user.git_username}
+        return action
