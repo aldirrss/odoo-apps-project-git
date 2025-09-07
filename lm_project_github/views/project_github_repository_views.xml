@@ -6,13 +6,19 @@
             <field name="name">project.github.repository.form</field>
             <field name="model">project.github.repository</field>
             <field name="arch" type="xml">
-                <form string="Git Repository">
+                <form string="Git Repository" create="false" edit="false">
                     <sheet>
-                        <div class="oe_title">
-                            <label for="name"/>
-                            <h1>
-                                <field name="name" placeholder="e. g. lm_project_github"/>
-                            </h1>
+                        <div style="margin: 10px 0;">
+                            <h4>Repository Information:</h4>
+                            <field name="repository_info_html" nolabel="1" class="mt8"/>
+                            <h4 style="margin-top: 20px;">Connection Details:</h4>
+                            <ul>
+                                <li><b>Project:</b> <field name="project_id"/></li>
+                                <li><b>Company:</b> <field name="company_id"/></li>
+                                <li><b>Connected on:</b> <field name="create_date"/></li>
+                                <li><b>Connected by:</b> <field name="create_uid"/></li>
+                                <li><b>Status:</b> <field name="is_connected" string="GitHub" widget="git_connection_status"/></li>
+                            </ul>
                         </div>
                     </sheet>
                 </form>
@@ -23,8 +29,14 @@
             <field name="name">project.github.repository.tree</field>
             <field name="model">project.github.repository</field>
             <field name="arch" type="xml">
-                <list string="Git Repository">
+                <list string="Git Repository" action="action_view_form" type="object"
+                      create="false" edit="false" delete="false">
                     <field name="name"/>
+                    <field name="project_id"/>
+                    <field name="owner"/>
+                    <field name="default_branch_id"/>
+                    <field name="private" widget="boolean_toggle"/>
+                    <field name="is_connected" string="GitHub" widget="git_connection_status"/>
                 </list>
             </field>
         </record>
