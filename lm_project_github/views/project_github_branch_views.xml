@@ -8,10 +8,29 @@
                 <list string="Git Branch">
                     <field name="name"/>
                     <field name="repository_id"/>
-                    <field name="protected"/>
+                    <field name="project_id"/>
+                    <field name="is_default"/>
                     <field name="color" widget="color_picker"/>
                 </list>
             </field>
         </record>
+
+        <record id="project_github_branch_act_window" model="ir.actions.act_window">
+            <field name="name">Git Branches</field>
+            <field name="res_model">project.github.branch</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="project_github_branch_tree_view"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create Git Branch
+                </p>
+            </field>
+        </record>
+
+        <menuitem name="Github Branches" id="project_github_branch_menu"
+                  sequence="24" parent="project.menu_project_config"
+                  action="project_github_branch_act_window"
+                  groups="lm_project_github.group_git_integration"/>
+
     </data>
 </odoo>

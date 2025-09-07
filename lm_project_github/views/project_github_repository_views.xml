@@ -6,56 +6,25 @@
             <field name="name">project.github.repository.form</field>
             <field name="model">project.github.repository</field>
             <field name="arch" type="xml">
-                <form string="Git Repository">
-                    <header>
-                        <button name="action_connect_repository" string="Connect Repository"
-                                type="object" class="oe_highlight" invisible="is_connected"/>
-                        <button name="action_create_webhook" string="Create Webhook"
-                                type="object" class="oe_highlight" invisible="not is_connected"/>
-                        <button name="action_create_branch" string="Create Branch"
-                                type="object" class="oe_highlight" invisible="not is_connected"/>
-                        <button name="action_delete_webhook" string="Delete Webhook"
-                                type="object" invisible="not is_connected"/>
-                        <button name="action_sync_branch" string="Sync Branch"
-                                type="object" invisible="not is_connected"/>
-                        <button name="action_delete_branch" string="Delete Branch"
-                                type="object" invisible="not is_connected"/>
-                    </header>
+                <form string="Git Repository" create="false" edit="false">
                     <sheet>
-                        <div class="oe_button_box" name="button_box">
-                            <button name="action_view_branches" class="oe_stat_button"
-                                    icon="fa-github" type="object" invisible="not is_connected">
-                                <field name="branch_count" widget="statinfo" string="Branch"/>
-                            </button>
-                        </div>
-                        <field name="images" widget="image" class="oe_avatar" invisible="not is_connected"/>
-                        <div class="oe_title">
-                            <label for="name"/>
-                            <h1>
-                                <field name="name" placeholder="e. g. lm_project_github"
-                                       readonly="is_connected"/>
-                            </h1>
-                        </div>
-                        <group>
-                            <group>
-                                <field name="project_id" invisible="not project_id"/>
-                                <field name="commit_prefix"/>
-                            </group>
-                            <group>
-                                <field name="date_connected" invisible="not is_connected"/>
-                                <field name="github_id" invisible="not is_connected"/>
-                                <field name="owner" readonly="is_connected"/>
-                                <field name="url" widget="url"/>
-                                <field name="is_connected" invisible="1"/>
-                            </group>
+                        <group col="4" class="mt16">
+                            <field name="project_id" readonly="1"/>
+                            <field name="company_id" readonly="1"/>
+                            <span/>
                         </group>
-                        <notebook>
-                            <page string="Description">
-                                <field name="description" nolabel="1" placeholder="Add description here..."/>
-                            </page>
-                        </notebook>
+                        <separator string="Repository Details" colspan="4"/>
+                        <div style="margin: 10px 0;">
+                            <field name="repository_info_html" nolabel="1" class="mt8"/>
+                            <h4 style="margin-top: 20px;">Connection Details:</h4>
+                            <ul>
+                                <li><b>Project:</b> <field name="project_id"/></li>
+                                <li><b>Connected on:</b> <field name="create_date"/></li>
+                                <li><b>Connected by:</b> <field name="create_uid"/></li>
+                                <li><b>Status:</b> <field name="is_connected" string="GitHub" widget="git_connection_status"/></li>
+                            </ul>
+                        </div>
                     </sheet>
-                    <chatter/>
                 </form>
             </field>
         </record>
@@ -64,16 +33,14 @@
             <field name="name">project.github.repository.tree</field>
             <field name="model">project.github.repository</field>
             <field name="arch" type="xml">
-                <list string="Git Repository">
-                    <header>
-                        <button name="action_create_repository" string="Create Repository"
-                                type="object" display="always"/>
-                    </header>
+                <list string="Git Repository" action="action_view_form" type="object"
+                      create="false" edit="false" delete="false">
                     <field name="name"/>
-                    <field name="project_id" invisible="not project_id"/>
-                    <field name="url"/>
-                    <field name="commit_prefix"/>
-                    <field name="active" widget="boolean_toggle" readonly="1"/>
+                    <field name="project_id"/>
+                    <field name="owner"/>
+                    <field name="default_branch_id"/>
+                    <field name="private" widget="boolean_toggle"/>
+                    <field name="is_connected" string="GitHub" widget="git_connection_status"/>
                 </list>
             </field>
         </record>
@@ -96,7 +63,7 @@
         <record id="project_github_repository_act_window" model="ir.actions.act_window">
             <field name="name">Github Repository</field>
             <field name="res_model">project.github.repository</field>
-            <field name="view_mode">list,form</field>
+            <field name="view_mode">list</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     No Git Repository found.

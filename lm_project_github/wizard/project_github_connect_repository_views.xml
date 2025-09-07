@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- GitHub Repository Connection Wizard Form View -->
+        <record id="view_project_github_connect_repository_form" model="ir.ui.view">
+            <field name="name">project.github.connect.repository.form</field>
+            <field name="model">project.github.connect.repository</field>
+            <field name="arch" type="xml">
+                <form string="Connect GitHub Repository">
+                    <header>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="form,select_repo,preview"
+                               readonly="1"/>
+                    </header>
+                    <sheet>
+                        <!-- Form State -->
+                        <group invisible="state != 'form'">
+                            <group>
+                                <field name="project_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                            <group>
+                                <field name="github_username" placeholder="Leave empty for your own repositories"/>
+                                <field name="repo_type"/>
+                                <field name="sort_by"/>
+                                <field name="sort_direction"/>
+                            </group>
+                            <group col="12">
+                                <div class="alert alert-info" role="alert" colspan="12">
+                                    <h4>Instructions:</h4>
+                                    <ul>
+                                        <li>Make sure you have configured your GitHub token in user preferences</li>
+                                        <li>Leave "GitHub Username" empty to fetch your own repositories</li>
+                                        <li>Enter a specific username to fetch public repositories of that user</li>
+                                        <li>Use filters to narrow down the repository list</li>
+                                        <li>The system will fetch up to 1000 repositories</li>
+                                    </ul>
+                                </div>
+                            </group>
+                        </group>
+
+                        <!-- Select Repository State -->
+                        <group invisible="state != 'select_repo'">
+                            <h3 colspan="4">Select Repository to Connect</h3>
+
+                            <!-- Statistics -->
+                            <group col="4" string="Repository Statistics">
+                                <field name="total_repositories" readonly="1"/>
+                                <field name="public_count" readonly="1"/>
+                                <field name="private_count" readonly="1"/>
+                                <field name="github_username" readonly="1"/>
+                            </group>
+
+                            <!-- Selected Repository Display -->
+                            <group col="2">
+                                <field name="selected_repository_id" readonly="1"
+                                       options="{'no_create': True, 'no_open': True}"/>
+                                <field name="selected_repository_name" readonly="1"
+                                        placeholder="No repository selected" string="Full Name Repo"/>
+                            </group>
+
+                            <!-- Repository List -->
+                            <separator string="Available Repositories" colspan="4"/>
+                            <field name="repository_ids" readonly="1" widget="one2many_list"
+                                   colspan="4" nolabel="1" height="400">
+                                <list editable="bottom" decoration-muted="private == True" limit="100">
+                                    <field name="name"/>
+                                    <field name="owner"/>
+                                    <field name="description" column_invisible="1"/>
+                                    <field name="language"/>
+                                    <field name="private" widget="boolean_toggle"/>
+                                    <field name="stars_count" column_invisible="1"/>
+                                    <field name="forks_count" column_invisible="1"/>
+                                    <field name="updated_at"/>
+                                    <button name="action_select_repository" type="object"
+                                            string="Select" class="btn btn-sm btn-primary"/>
+                                </list>
+                            </field>
+                        </group>
+
+                        <!-- Preview State -->
+                        <group invisible="state != 'preview'">
+                            <h3 colspan="4">Preview Repository Connection</h3>
+                            <group col="4" class="mt8">
+                                <field name="selected_repository_name" readonly="1" string="Selected Repository"/>
+                                <field name="project_id" readonly="1"/>
+                                <field name="company_id" readonly="1"/>
+                                <span/>
+                            </group>
+                            <separator string="Repository Details" colspan="4"/>
+                            <field name="preview_data" colspan="4" nolabel="1"/>
+                        </group>
+                    </sheet>
+
+                    <footer>
+                        <!-- Form State Footer -->
+                        <span invisible="state != 'form'">
+                            <button name="action_fetch_repositories"
+                                    type="object"
+                                    string="Fetch Repositories"
+                                    class="btn-primary me-2"/>
+                            <button string="Cancel" class="btn-secondary" special="cancel"/>
+                        </span>
+
+                        <!-- Select Repository State Footer -->
+                        <span invisible="state != 'select_repo'">
+                            <button name="action_preview_repository"
+                                    type="object"
+                                    string="Preview Selected"
+                                    class="btn-primary me-2"
+                                    invisible="not selected_repository_id"/>
+                            <button name="action_back"
+                                    type="object"
+                                    string="Back"
+                                    class="btn-secondary me-2"/>
+                            <button string="Cancel" class="btn-secondary" special="cancel"/>
+                        </span>
+
+                        <!-- Preview State Footer -->
+                        <span invisible="state != 'preview'">
+                            <button name="action_connect_repository"
+                                    type="object"
+                                    string="Connect Repository"
+                                    class="btn-primary me-2"
+                                    confirm="Are you sure you want to connect this repository to the project?"/>
+                            <button name="action_back"
+                                    type="object"
+                                    string="Back"
+                                    class="btn-secondary me-2"/>
+                            <button string="Cancel" class="btn-secondary" special="cancel"/>
+                        </span>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action to open the wizard -->
+        <record id="action_project_github_connect_repository" model="ir.actions.act_window">
+            <field name="name">Connect GitHub Repository</field>
+            <field name="res_model">project.github.connect.repository</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_project_github_connect_repository_form"/>
+        </record>
+    </data>
+</odoo>

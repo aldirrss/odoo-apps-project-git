@@ -5,7 +5,7 @@ from random import randint
 class ProjectGithubBranch(models.Model):
     _name = 'project.github.branch'
     _description = 'Git Branch linked to a Repository'
-    _order = 'name desc'
+    _order = 'project_id asc, is_default desc, name asc'
 
     def _get_default_color(self):
         # random color index
@@ -23,10 +23,15 @@ class ProjectGithubBranch(models.Model):
         ondelete='cascade',
         help='GitHub Repository associated with this branch',
     )
-    protected = fields.Boolean(
-        string='Protected',
+    project_id = fields.Many2one(
+        'project.project',
+        string='Project',
+        help='Project associated with this branch',
+    )
+    is_default = fields.Boolean(
+        string='Default Branch',
         default=False,
-        help='Indicates if this branch is protected',
+        help='Indicates if this branch is the default branch of the repository',
     )
     color = fields.Integer(string='Color Index', default=_get_default_color)
 
