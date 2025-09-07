@@ -23,6 +23,11 @@ class Project(models.Model):
         readonly=False,
         help="The default branch of the connected GitHub repository."
     )
+    branch_ids = fields.Many2many(
+        comodel_name="project.github.branch",
+        string="Branches",
+        help="Branches of the connected GitHub repository."
+    )
 
     def _header_authentication(self):
         token = self.env.user.git_token

@@ -310,7 +310,7 @@ class ProjectGithubConnectRepository(models.TransientModel):
         preview_html = '<div style="margin: 10px 0;">'
 
         # Repository Information
-        preview_html += '<h4>Repository Information:</h4>'
+        # preview_html += '<h4>Repository Information:</h4>'
         preview_html += '<table style="width: 100%; border-collapse: collapse;">'
 
         info_items = [
@@ -350,7 +350,6 @@ class ProjectGithubConnectRepository(models.TransientModel):
         preview_html += '<h4 style="margin-top: 20px;">Connection Details:</h4>'
         preview_html += '<ul>'
         preview_html += f'<li><b>Project:</b> {self.project_id.name}</li>'
-        preview_html += f'<li><b>Company:</b> {self.company_id.name}</li>'
         preview_html += f'<li><b>Connected On:</b> {self.date_connected.strftime("%Y-%m-%d %H:%M:%S")}</li>'
         if repo.created_at:
             preview_html += f'<li><b>Repository Created:</b> {repo.created_at.strftime("%Y-%m-%d %H:%M:%S")}</li>'
@@ -460,6 +459,7 @@ class ProjectGithubConnectRepository(models.TransientModel):
                     'repository_id': repo_id.id if repo_id else existing_repos,
                     'is_connected_github': True,
                     'github_url': repo.html_url,
+                    'branch_ids': [(4, branch_id.id)]
                 })
 
             # Update the repository with the default branch
