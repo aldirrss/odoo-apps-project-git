@@ -14,6 +14,8 @@
 
         'wizard/res_users_git_credential_views.xml',
         'wizard/project_github_create_repository_views.xml',
+
+        'views/project_views.xml',
         'views/project_github_repository_views.xml',
         'views/project_github_branch_views.xml',
         'views/res_config_settings_views.xml',

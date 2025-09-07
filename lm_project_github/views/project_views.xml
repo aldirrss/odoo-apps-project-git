@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_project_form_inherit" model="ir.ui.view">
+            <field name="name">project.form.inherit.github</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.edit_project"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[@name='settings']/group[2]" position="inside">
+                    <group name="group_github_repository" string="GitHub" col="1" class="row mt16 o_settings_container"
+                           groups="lm_project_github.group_git_integration">
+                        <div>
+                            <setting class="col-lg-12" id="enable_github_setting" help="Enable GitHub Integration for Projects" groups="lm_project_github.group_git_integration">
+                                <field name="enable_github"/>
+                                <span invisible="not is_connected_github" class="text-success o_row" role="alert">
+                                    <i class="fa fa-check-circle me-2"/>
+                                    Connected to GitHub
+                                </span>
+                            </setting>
+                            <setting class="col-lg-12" id="github_repository_setting" help="GitHub Repository" invisible="not enable_github" groups="lm_project_github.group_git_integration">
+                                <div class="content-group">
+                                    <div class="row mt8" invisible="not is_connected_github">
+                                        <label for="github_repository" class="fw-bold o_form_label" string="Repository"/>
+                                        <field name="github_repository" class="oe_read_only d-inline" readonly="1" />
+                                    </div>
+                                    <div class="row mt8" invisible="not is_connected_github">
+                                        <label for="github_url" class="fw-bold o_form_label" string="URL"/>
+                                        <field name="github_url" class="oe_read_only d-inline" readonly="1" />
+                                    </div>
+                                </div>
+                                <button name="action_connect_repository" type="object"
+                                        string="Connect a Repository" icon="fa-github"
+                                        class="btn btn-secondary mt8" invisible="is_connected_github"/>
+                            </setting>
+                        </div>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
