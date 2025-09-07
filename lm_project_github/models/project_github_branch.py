@@ -23,6 +23,11 @@ class ProjectGithubBranch(models.Model):
         ondelete='cascade',
         help='GitHub Repository associated with this branch',
     )
+    project_id = fields.Many2one(
+        'project.project',
+        string='Project',
+        help='Project associated with this branch',
+    )
     is_default = fields.Boolean(
         string='Default Branch',
         default=False,

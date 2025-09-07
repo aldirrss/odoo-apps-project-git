@@ -8,6 +8,7 @@
                 <list string="Git Branch">
                     <field name="name"/>
                     <field name="repository_id"/>
+                    <field name="project_id"/>
                     <field name="is_default"/>
                     <field name="color" widget="color_picker"/>
                 </list>

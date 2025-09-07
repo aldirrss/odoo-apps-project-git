@@ -450,7 +450,11 @@ class ProjectGithubConnectRepository(models.TransientModel):
             # Note: Adjust the model name based on your actual implementation
             repo_id = self.env['project.github.repository'].create(connection_vals)
             # create or update the default branch record
-            branch_id = self._create_write_branches(repo.default_branch, repo_id.id)
+            branch_id = self._create_write_branches(
+                project_id=self.project_id.id,
+                default_branch=repo.default_branch,
+                repo_id=repo_id.id
+            )
 
             # write the project fields to indicate GitHub connection
             if repo_id:
@@ -493,18 +497,20 @@ class ProjectGithubConnectRepository(models.TransientModel):
             _logger.error(f"Error connecting repository: {e}")
             raise UserError(_('Failed to connect repository: %s') % str(e))
 
-    def _create_write_branches(self, default_branch, repo_id):
+    def _create_write_branches(self, project_id, default_branch, repo_id):
         """Create or update the default branch record for the connected repository"""
         branch_model = self.env['project.github.branch']
         branch = branch_model.search([
             ('name', '=', default_branch),
-            ('repository_id', '=', repo_id)
+            ('repository_id', '=', repo_id),
+            ('project_id', '=', project_id)
         ], limit=1)
 
         if not branch:
             branch = branch_model.create({
                 'name': default_branch,
                 'repository_id': repo_id,
+                'project_id': project_id,
                 'is_default': True,
             })
         else:

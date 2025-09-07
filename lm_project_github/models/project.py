@@ -71,14 +71,45 @@ class Project(models.Model):
             self.enable_github = False
             self.is_connected_github = False
             self.github_url = False
-            log_message = self._get_log_message_template().format(
-                message=_("Successfully disconnected from GitHub repository <b>%s</b>." % repo_name),
-                action_link="#",
-                action_text=_("Refresh Page")
-            )
-            self.message_post(body=Markup(log_message))
+            self.message_post(body=_("Disconnected from GitHub repository %s." % repo_name))
         except requests.RequestException as e:
             raise UserError(_("Error during disconnection: %s" % str(e)))
+
+    def action_sync_branches(self):
+        self.ensure_one()
+        if not self.is_connected_github:
+            raise UserError(_("Repository is not connected. Please connect the repository first."))
+
+        base_url = self.env.company.github_instance_url or 'https://api.github.com'
+
+        try:
+            response = requests.get(
+                f'{base_url}/repos/{self.repository_id.full_name}/branches',
+                headers=self._header_authentication(),
+                timeout=10
+            )
+            if response.status_code == 200:
+                branches = response.json()
+                existing_branch_names = self.branch_ids.mapped('name')
+                new_branches = []
+                for branch in branches:
+                    if branch['name'] not in existing_branch_names:
+                        new_branch = self.env['project.github.branch'].create({
+                            'name': branch['name'],
+                            'project_id': self.id,
+                            'repository_id': self.repository_id.id,
+                        })
+                        new_branches.append(new_branch)
+                if new_branches:
+                    self.branch_ids = [(4, b.id) for b in new_branches]
+                    self.message_post(
+                        body=_("Synchronized branches successfully. Added %d new branches." % len(new_branches)))
+                else:
+                    raise UserError(_("No new branches found to synchronize."))
+            else:
+                raise UserError(_("Failed to fetch branches from GitHub. Status Code: %s" % response.status_code))
+        except requests.RequestException as e:
+            raise UserError(_("An error occurred while connecting to GitHub: %s" % str(e)))
 
     def _get_log_message_template(self):
         """Return HTML template for log message."""
