@@ -1,6 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- List -->
+        <record id="project_project_github_tree_view_inherit" model="ir.ui.view">
+            <field name="name">project.project.github.tree</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.view_project"/>
+            <field name="arch" type="xml">
+                <field name="user_id" position="after">
+                    <field name="repository_id" string="Repository"
+                           groups="lm_project_github.group_git_integration"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- Kanban -->
+        <record id="project_project_github_kanban_view_inherit" model="ir.ui.view">
+            <field name="name">project.project.github.kanban</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.view_project_kanban"/>
+            <field name="arch" type="xml">
+                <span name="partner_name" position="after">
+                    <span name="partner_name" class="text-muted d-flex align-items-baseline"
+                          t-if="record.repository_id.value">
+                        <span class="fa fa-github me-2" aria-label="Repo" title="Repo"></span>
+                        <field class="text-truncate" name="repository_id"
+                               groups="lm_project_github.group_git_integration"/>
+                    </span>
+                </span>
+            </field>
+        </record>
+
+        <!-- Form -->
         <record id="view_project_form_inherit" model="ir.ui.view">
             <field name="name">project.form.inherit.github</field>
             <field name="model">project.project</field>
@@ -64,9 +95,13 @@
                            class="row mt16 o_settings_container"
                            groups="lm_project_github.group_git_integration" invisible="not is_connected_github">
                         <div>
+                            <setting class="col-lg-12" id="commit_prefix_setting"
+                                     help="Prefix to identify commits related to this project">
+                                <field name="commit_prefix"/>
+                            </setting>
                             <setting class="col-lg-12" id="github_branch_setting"
                                      help="Default Origin Branch for this Project">
-                                <field name="default_branch_id" class="col-12 w-100"
+                                <field name="default_branch_id"
                                        options="{'no_create': True, 'no_quick_create': True, 'no_open': True}"
                                        domain="[('repository_id', '=', repository_id)]"/>
                                 <div class="content-group" invisible="not branch_ids">
@@ -77,6 +112,31 @@
                                     </div>
                                 </div>
                             </setting>
+                            <setting class="col-lg-12" id="automation_workflow_setting">
+                                <field name="automation_workflow"/>
+                                <span colspan="2" class="oe_grey oe_edit_only" invisible="not automation_workflow">
+                                    <ul>
+                                        Automation Workflow Rules:
+                                        <li>
+                                            If a PR is merged on GitHub, the Odoo task status will automatically move to 'Done'.
+                                        </li>
+                                        <li>
+                                            If a new commit occurs, the Odoo task status will move to 'In Progress.
+                                        </li>
+                                    </ul>
+                                </span>
+                            </setting>
+                            <setting class="col-lg-12" id="auto_create_issues_setting">
+                                <field name="auto_create_issues"/>
+                            </setting>
+                            <setting class="col-lg-12" id="auto_update_issues_setting">
+                                <field name="auto_update_issues"/>
+                            </setting>
+<!--                            <setting class="col-lg-12" id="auto_update_issues_setting"-->
+<!--                                     help="Create a new branch in the repository when a new task/issues is created"-->
+<!--                                     invisible="not auto_create_issues">-->
+<!--                                <field name="create_issues_branch"/>-->
+<!--                            </setting>-->
                         </div>
                     </group>
                 </xpath>

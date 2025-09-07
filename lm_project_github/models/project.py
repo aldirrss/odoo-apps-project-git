@@ -15,6 +15,9 @@ class Project(models.Model):
     is_connected_github = fields.Boolean(string="Connected", default=False)
     github_url = fields.Char(string="GitHub URL", readonly=True)
 
+    # Commit management
+    commit_prefix = fields.Char(string="Commit Prefix", help="Prefix to identify commits related to this project.")
+
     # Branch management
     default_branch_id = fields.Many2one(
         comodel_name="project.github.branch",
@@ -28,6 +31,29 @@ class Project(models.Model):
         string="Branches",
         help="Branches of the connected GitHub repository."
     )
+
+    # Webhook management
+
+    # Issues management
+    auto_create_issues = fields.Boolean(string="Auto-create Issues on Tasks Creation", default=False)
+    auto_update_issues = fields.Boolean(string="Auto-update Issues on Tasks Update", default=False)
+    # create_issues_branch = fields.Boolean(string="Create Issues with New Branch on Tasks Creation", default=False)
+    automation_workflow = fields.Boolean(string="Enable Automation Workflow", default=False)
+
+    @api.onchange('automation_workflow')
+    def _onchange_automation_workflow(self):
+        if not self.automation_workflow:
+            self.auto_create_issues = False
+            self.auto_update_issues = False
+        else:
+            self.auto_create_issues = True
+            self.auto_update_issues = True
+
+    @api.constrains('auto_create_issues')
+    def _check_auto_create_issues(self):
+        for project in self:
+            if not project.auto_create_issues:
+                raise UserError(_("To enable 'Automation Workflow', 'Auto-create Issues on Tasks Creation' must be enabled."))
 
     def _header_authentication(self):
         token = self.env.user.git_token

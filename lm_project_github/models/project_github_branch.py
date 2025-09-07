@@ -5,7 +5,7 @@ from random import randint
 class ProjectGithubBranch(models.Model):
     _name = 'project.github.branch'
     _description = 'Git Branch linked to a Repository'
-    _order = 'name desc'
+    _order = 'project_id asc, is_default desc, name asc'
 
     def _get_default_color(self):
         # random color index
