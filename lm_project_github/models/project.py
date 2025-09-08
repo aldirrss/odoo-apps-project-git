@@ -45,6 +45,10 @@ class Project(models.Model):
     )
 
     # Webhook management
+    webhook_id = fields.Many2one(
+        comodel_name="project.github.webhook",
+        string="Webhook Configuration", help="Webhook configured for this project."
+    )
 
     # Issues management
     auto_create_issues = fields.Boolean(string="Auto-create Issues on Tasks Creation", default=False)
@@ -246,6 +250,17 @@ class Project(models.Model):
     def _compute_commit_count(self):
         for project in self:
             project.commit_count = len(project.commit_ids)
+
+    def action_create_webhook(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'GitHub Webhook Configuration',
+            'res_model': 'project.github.webhook',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_project_id': self.id, 'default_create_webhook': True},
+        }
 
     def _get_log_message_template(self):
         """Return HTML template for log message."""

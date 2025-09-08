@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="project_github_webhook_form_view" model="ir.ui.view">
+            <field name="name">project.github.webhook.form</field>
+            <field name="model">project.github.webhook</field>
+            <field name="arch" type="xml">
+                <form string="GitHub Webhook">
+                    <sheet>
+                        <group>
+                            <group colspan="2">
+                                <field name="webhook_id" invisible="not webhook_id"/>
+                                <field name="project_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
+                                <field name="webhook_name"/>
+                                <field name="webhook_secret" password="True"/>
+                                <field name="enable_ssl_verification"/>
+                            </group>
+                            <group string="Events" colspan="2">
+                                <field name="push_events"/>
+                                <field name="pull_request_events"/>
+                                <field name="issues_events"/>
+                                <field name="workflow_jobs_events"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Save &amp; Close" type="object" name="action_push_webhook" class="btn-primary"
+                                invisible="webhook_id"/>
+                        <button string="Discard" class="btn-secondary" special="cancel"
+                                invisible="context.get('create_webhook')"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="project_github_webhook_tree_view" model="ir.ui.view">
+            <field name="name">project.github.webhook.tree</field>
+            <field name="model">project.github.webhook</field>
+            <field name="arch" type="xml">
+                <list string="GitHub Webhook">
+                    <field name="webhook_name"/>
+                    <field name="project_id"/>
+                    <field name="push_events"/>
+                    <field name="pull_request_events"/>
+                    <field name="issues_events"/>
+                    <field name="workflow_jobs_events"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="project_github_webhook_search_view" model="ir.ui.view">
+            <field name="name">project.github.webhook.search</field>
+            <field name="model">project.github.webhook</field>
+            <field name="arch" type="xml">
+                <search string="GitHub Webhook">
+                    <field name="webhook_name"/>
+                    <field name="project_id"/>
+                    <filter string="Push Events" name="push_events" domain="[('push_events', '=', True)]"/>
+                    <filter string="Pull Request Events" name="pull_request_events"
+                            domain="[('pull_request_events', '=', True)]"/>
+                    <filter string="Issues Events" name="issues_events" domain="[('issues_events', '=', True)]"/>
+                    <filter string="Workflow Jobs Events" name="workflow_jobs_events"
+                            domain="[('workflow_jobs_events', '=', True)]"/>
+                    <filter string="SSL Verification Enabled" name="ssl_verification"
+                            domain="[('enable_ssl_verification', '=', True)]"/>
+                    <filter string="SSL Verification Disabled" name="no_ssl_verification"
+                            domain="[('enable_ssl_verification', '=', False)]"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter string="Project" name="group_by_project" context="{'group_by':'project_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="project_github_webhook_act_window" model="ir.actions.act_window">
+            <field name="name">GitHub Webhook</field>
+            <field name="res_model">project.github.webhook</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">
+                {'create': False, 'edit': False, 'create_webhook': False}
+            </field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No GitHub Webhook found
+                </p>
+                <p>
+                    There is no examples click here to add new GitHub Webhook">.
+                </p>
+            </field>
+        </record>
+
+        <menuitem name="Github Webhook" id="project_github_webhook_menu"
+                  parent="project.menu_project_config"
+                  action="project_github_webhook_act_window"
+                  groups="lm_project_github.group_git_integration"/>
+
+    </data>
+</odoo>

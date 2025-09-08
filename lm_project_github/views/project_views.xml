@@ -92,7 +92,7 @@
                                 </div>
                                 <button name="action_connect_repository" type="object"
                                         string="Connect a Repository" icon="fa-github"
-                                        class="btn btn-secondary mt8" invisible="is_connected_github"/>
+                                        class="btn btn-secondary" invisible="is_connected_github"/>
                                 <button name="action_disconnect_repository" type="object"
                                         string="Disconnect a Repository" icon="fa-github"
                                         class="btn btn-secondary mt8" invisible="not is_connected_github"
@@ -104,11 +104,19 @@
                            class="row mt16 o_settings_container"
                            groups="lm_project_github.group_git_integration" invisible="not is_connected_github">
                         <div>
-                            <setting class="col-lg-12" id="commit_prefix_setting"
+                            <setting class="col-lg-12" id="github_webhook_setting"
+                                     help="Manage GitHub Webhook for this Repository">
+                                <field name="webhook_id" options="{'no_create': True, 'no_quick_create': True}"
+                                       invisible="not webhook_id"/>
+                                <button name="action_create_webhook" type="object"
+                                        string="Create Webhook" icon="fa-github"
+                                        class="btn btn-secondary"/>
+                            </setting>
+                            <setting class="col-lg-12 mt8" id="commit_prefix_setting"
                                      help="Prefix to identify commits related to this project">
                                 <field name="commit_prefix"/>
                             </setting>
-                            <setting class="col-lg-12" id="github_branch_setting"
+                            <setting class="col-lg-12 mt8" id="github_branch_setting"
                                      help="Default Origin Branch for this Project">
                                 <field name="default_branch_id"
                                        options="{'no_create': True, 'no_quick_create': True, 'no_open': True}"
