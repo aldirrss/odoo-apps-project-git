@@ -2,6 +2,7 @@ from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 import requests
 from markupsafe import Markup
+from datetime import datetime
 
 
 class Project(models.Model):
@@ -17,6 +18,17 @@ class Project(models.Model):
 
     # Commit management
     commit_prefix = fields.Char(string="Commit Prefix", help="Prefix to identify commits related to this project.")
+    commit_ids = fields.One2many(
+        comodel_name="project.github.commit",
+        inverse_name="project_id",
+        string="Commits",
+        help="Commits associated with this project."
+    )
+    commit_count = fields.Integer(
+        string="Commit Count",
+        compute="_compute_commit_count",
+        help="Number of commits associated with this project."
+    )
 
     # Branch management
     default_branch_id = fields.Many2one(
@@ -135,6 +147,105 @@ class Project(models.Model):
                 raise UserError(_("Failed to fetch branches from GitHub. Status Code: %s" % response.status_code))
         except requests.RequestException as e:
             raise UserError(_("An error occurred while connecting to GitHub: %s" % str(e)))
+
+    def action_sync_commits(self):
+        self.ensure_one()
+        if not self.is_connected_github:
+            raise UserError(_("Repository is not connected. Please connect the repository first."))
+
+        base_url = self.env.company.github_instance_url or 'https://api.github.com'
+        headers = self._header_authentication()
+
+        try:
+            branches_res = requests.get(
+                f'{base_url}/repos/{self.repository_id.full_name}/branches',
+                headers=headers, timeout=10
+            )
+            if branches_res.status_code != 200:
+                raise UserError(_("Failed to fetch branches. %s" % branches_res.text))
+            branches = branches_res.json()
+
+            new_commits = []
+            for branch in branches:
+                branch_name = branch['name']
+                branch_rec = self.env['project.github.branch'].search([
+                    ('name', '=', branch_name),
+                    ('project_id', '=', self.id)
+                ], limit=1)
+                if not branch_rec:
+                    branch_rec = self.env['project.github.branch'].create({
+                        'name': branch_name,
+                        'project_id': self.id,
+                    })
+
+                commits_res = requests.get(
+                    f'{base_url}/repos/{self.repository_id.full_name}/commits?sha={branch_name}',
+                    headers=headers, timeout=10
+                )
+                if commits_res.status_code != 200:
+                    continue
+
+                for commit in commits_res.json():
+                    commit_data = commit['commit']
+                    commit_hash = commit['sha']
+
+                    commit_rec = self.env['project.github.commit'].search([
+                        ('commit_hash', '=', commit_hash),
+                        ('project_id', '=', self.id),
+                    ], limit=1)
+
+                    if not commit_rec:
+                        commit_date = datetime.strptime(
+                            commit_data['author']['date'], "%Y-%m-%dT%H:%M:%SZ"
+                        ).replace(tzinfo=None)
+
+                        commit_rec = self.env['project.github.commit'].create({
+                            'task_id': False,
+                            'project_id': self.id,
+                            'commit_hash': commit_hash,
+                            'author_name': commit_data['author']['name'],
+                            'author_email': commit_data['author']['email'],
+                            'commiter_name': commit_data['committer']['name'],
+                            'commiter_email': commit_data['committer']['email'],
+                            'name': commit_data['message'],
+                            'commit_url': commit['html_url'],
+                            'date': commit_date,
+                            'branch_ids': [(6, 0, [branch_rec.id])],
+                        })
+                        new_commits.append(commit_rec)
+                    else:
+                        if branch_rec.id not in commit_rec.branch_ids.ids:
+                            commit_rec.branch_ids = [(4, branch_rec.id)]
+
+            if new_commits:
+                self.commit_ids = [(4, c.id) for c in new_commits]
+                self.message_post(body=_("Synchronized %d new commits across all branches." % len(new_commits)))
+            else:
+                raise UserError(_("No new commits found to synchronize."))
+
+        except requests.RequestException as e:
+            raise UserError(_("GitHub connection error: %s" % str(e)))
+
+    def action_view_commits(self):
+        self.ensure_one()
+        return {
+            'name': _('Commits'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'project.github.commit',
+            'view_mode': 'list,form',
+            'domain': [('project_id', '=', self.id)],
+            'context': {'duplicate': False},
+            'target': 'current',
+            'help': _('''<p class="o_view_nocontent_smiling_face">
+                        There are no commits for this project.
+                        </p>
+                    '''),
+        }
+
+    @api.depends('commit_ids')
+    def _compute_commit_count(self):
+        for project in self:
+            project.commit_count = len(project.commit_ids)
 
     def _get_log_message_template(self):
         """Return HTML template for log message."""

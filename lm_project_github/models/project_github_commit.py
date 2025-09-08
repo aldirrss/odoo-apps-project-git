@@ -2,11 +2,11 @@ from odoo import fields, models, api
 
 
 class ProjectGithubCommit(models.Model):
-    _name = 'project.task.git.commit'
-    _description = 'Project Task Git Commit'
-    _order = 'sequence desc, date desc, name desc, id desc'
+    _name = 'project.github.commit'
+    _description = 'Project Github Commit'
+    _order = 'date desc, id desc'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    sequence = fields.Integer(string='Sequence', default=1)
     name = fields.Char(string='Commit Message', help='Message associated with the commit')
     date = fields.Datetime(string='Commit Date', help='Date of the commit', default=fields.Datetime.now)
     project_id = fields.Many2one(
@@ -29,9 +29,17 @@ class ProjectGithubCommit(models.Model):
     commiter_email = fields.Char(string='Committer Email')
     commit_url = fields.Char(string='Commit URL', help='URL to view the commit in the repository')
     branch_ids = fields.Many2many(
-        'project.task.git.branch',
-        'project_task_git_commit_branch_rel',
-        'commit_id', 'branch_id',
+        'project.github.branch',
         string='Branches',
         help='Branches that contain this commit'
     )
+
+    def action_view_external_commit(self):
+        self.ensure_one()
+        if self.commit_url:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': self.commit_url,
+                'target': 'new',
+            }
+        return False

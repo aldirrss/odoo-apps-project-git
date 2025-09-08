@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="project_task_git_commit_form_view" model="ir.ui.view">
-            <field name="name">project.task.git.commit.form</field>
-            <field name="model">project.task.git.commit</field>
+        <record id="project_github_commit_form_view" model="ir.ui.view">
+            <field name="name">project.github.commit.form</field>
+            <field name="model">project.github.commit</field>
             <field name="arch" type="xml">
                 <form string="Git Commit" create="false" edit="false" delete="false">
                     <sheet>
                         <group>
-                            <field name="name" string="ID"/>
                             <field name="commit_hash"/>
                             <label for="author_name" string="Author"/>
                             <div class="o_row">
@@ -27,26 +26,27 @@
                             <field name="branch_ids" optional="hide" widget="many2many_tags" options="{'color_field': 'color'}"/>
                             <field name="commit_url" string="URL" widget="url"
                                    placeholder="e. g. https://git.com/your_commit" colspan="2"/>
-                            <field name="task_id"/>
-                            <field name="message" string="Commit" widget="text" colspan="2"/>
+                            <field name="project_id" optional="hide"/>
+                            <field name="task_id" optional="hide"/>
+                            <field name="name" string="Commit" widget="text" colspan="2"/>
                         </group>
                     </sheet>
+                    <chatter/>
                 </form>
             </field>
         </record>
 
-
-        <record id="project_task_git_commit_tree_view" model="ir.ui.view">
-            <field name="name">project.task.git.commit.tree</field>
-            <field name="model">project.task.git.commit</field>
+        <record id="project_github_commit_tree_view" model="ir.ui.view">
+            <field name="name">project.github.commit.tree</field>
+            <field name="model">project.github.commit</field>
             <field name="arch" type="xml">
                 <list string="Git Commit" create="false" edit="false">
                     <field name="name"/>
-                    <field name="message"/>
                     <field name="date"/>
                     <field name="author_name"/>
                     <field name="branch_ids" optional="hide" widget="many2many_tags" options="{'color_field': 'color'}"/>
                     <field name="commit_hash" optional="show"/>
+                    <field name="project_id" optional="hide"/>
                     <field name="task_id" optional="hide"/>
                     <button name="action_view_external_commit" type="object" string="View" icon="fa-globe"
                             invisible="not commit_url"/>
@@ -54,13 +54,12 @@
             </field>
         </record>
 
-        <record id="project_task_git_commit_search_view" model="ir.ui.view">
-            <field name="name">project.task.git.commit.search</field>
-            <field name="model">project.task.git.commit</field>
+        <record id="project_github_commit_search_view" model="ir.ui.view">
+            <field name="name">project.github.commit.search</field>
+            <field name="model">project.github.commit</field>
             <field name="arch" type="xml">
                 <search string="Git Commit">
                     <field name="name"/>
-                    <field name="message"/>
                     <field name="author_name"/>
                     <field name="date"/>
 

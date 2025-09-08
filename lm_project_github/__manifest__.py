@@ -18,6 +18,7 @@
         'views/project_views.xml',
         'views/project_github_repository_views.xml',
         'views/project_github_branch_views.xml',
+        'views/project_github_commit_views.xml',
         'views/res_config_settings_views.xml',
         'views/res_users_views.xml',
     ],

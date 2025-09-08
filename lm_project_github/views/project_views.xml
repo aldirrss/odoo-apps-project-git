@@ -41,6 +41,9 @@
                     <button name="action_sync_branches" type="object" string="Sync Branches"
                             invisible="not is_connected_github or not enable_github"
                             groups="lm_project_github.group_git_integration"/>
+                    <button name="action_sync_commits" type="object" string="Manual Sync Commits"
+                            invisible="not is_connected_github or not enable_github"
+                            groups="lm_project_github.group_git_integration"/>
                 </xpath>
                 <xpath expr="//div[@name='button_box']" position="inside">
                     <button class="oe_stat_button" type="object"
@@ -50,6 +53,12 @@
                         <div class="o_field_widget o_stat_info">
                             <span class="o_stat_text">Repository</span>
                         </div>
+                    </button>
+                    <button class="oe_stat_button" type="object"
+                            name="action_view_commits" icon="fa-code-fork"
+                            groups="lm_project_github.group_git_integration"
+                            invisible="not is_connected_github">
+                        <field name="commit_count" widget="statinfo" string="Commits"/>
                     </button>
                 </xpath>
                 <xpath expr="//notebook/page[@name='settings']/group[2]" position="inside">
