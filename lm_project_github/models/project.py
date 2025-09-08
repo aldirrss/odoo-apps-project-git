@@ -37,7 +37,6 @@ class Project(models.Model):
     # Issues management
     auto_create_issues = fields.Boolean(string="Auto-create Issues on Tasks Creation", default=False)
     auto_update_issues = fields.Boolean(string="Auto-update Issues on Tasks Update", default=False)
-    # create_issues_branch = fields.Boolean(string="Create Issues with New Branch on Tasks Creation", default=False)
     automation_workflow = fields.Boolean(string="Enable Automation Workflow", default=False)
 
     @api.onchange('automation_workflow')
