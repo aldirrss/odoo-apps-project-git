@@ -12,7 +12,7 @@
                             <group colspan="2">
                                 <field name="webhook_id" invisible="not webhook_id"/>
                                 <field name="project_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
-                                <field name="webhook_name"/>
+                                <field name="name"/>
                                 <field name="webhook_secret" password="True"/>
                                 <field name="enable_ssl_verification"/>
                             </group>
@@ -24,12 +24,6 @@
                             </group>
                         </group>
                     </sheet>
-                    <footer>
-                        <button string="Save &amp; Close" type="object" name="action_push_webhook" class="btn-primary"
-                                invisible="webhook_id"/>
-                        <button string="Discard" class="btn-secondary" special="cancel"
-                                invisible="context.get('create_webhook')"/>
-                    </footer>
                 </form>
             </field>
         </record>
@@ -39,7 +33,7 @@
             <field name="model">project.github.webhook</field>
             <field name="arch" type="xml">
                 <list string="GitHub Webhook">
-                    <field name="webhook_name"/>
+                    <field name="name"/>
                     <field name="project_id"/>
                     <field name="push_events"/>
                     <field name="pull_request_events"/>
@@ -54,7 +48,7 @@
             <field name="model">project.github.webhook</field>
             <field name="arch" type="xml">
                 <search string="GitHub Webhook">
-                    <field name="webhook_name"/>
+                    <field name="name"/>
                     <field name="project_id"/>
                     <filter string="Push Events" name="push_events" domain="[('push_events', '=', True)]"/>
                     <filter string="Pull Request Events" name="pull_request_events"

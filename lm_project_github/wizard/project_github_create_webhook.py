@@ -3,9 +3,9 @@ import requests
 from odoo.exceptions import UserError
 
 
-class ProjectGithubWebhook(models.Model):
-    _name = 'project.github.webhook'
-    _description = 'GitHub Webhook Configuration'
+class ProjectGithubCreateWebhook(models.TransientModel):
+    _name = 'project.github.create.webhook'
+    _description = 'GitHub Create Webhook'
 
     project_id = fields.Many2one(
         'project.project',
@@ -13,13 +13,8 @@ class ProjectGithubWebhook(models.Model):
         required=True,
         help='Project to configure the GitHub webhook for',
     )
-    webhook_id = fields.Char(
-        string='Webhook ID',
-        readonly=True,
-        help='ID of the webhook in GitHub',
-    )
     webhook_name = fields.Char(
-        string='Webhook Name',
+        string='Name',
         required=True,
         help='Name of the webhook in GitHub',
     )
@@ -96,11 +91,25 @@ class ProjectGithubWebhook(models.Model):
             )
             if response.status_code == 201:
                 webhook_data = response.json()
-                self.webhook_id = str(webhook_data.get('id'))
-                self.project_id.write({'webhook_id': self.id})
+                weebhook = self.env['project.github.webhook'].create({
+                    'name': self.webhook_name,
+                    'webhook_id': webhook_data.get('id'),
+                    'project_id': self.project_id.id,
+                    'repository_id': repo.id,
+                    'push_events': self.push_events,
+                    'pull_request_events': self.pull_request_events,
+                    'issues_events': self.issues_events,
+                    'workflow_jobs_events': self.workflow_jobs_events,
+                    'enable_ssl_verification': self.enable_ssl_verification,
+                    'webhook_secret': self.webhook_secret,
+                })
+                self.project_id.write({'project_webhook_id': weebhook.id})
                 self.project_id.message_post(
-                    body=_("GitHub webhook created successfully with ID: %s") % self.webhook_id
+                    body=_("GitHub webhook created successfully with ID: %s") % weebhook.webhook_id
                 )
+            else:
+                error_message = response.json().get('errors', response.json().get('message', 'Unknown error'))
+                raise UserError(_("Failed to create webhook: %s") % error_message)
         except requests.RequestException as e:
             raise UserError(_("Failed to create webhook: %s") % str(e))
 
@@ -117,5 +126,6 @@ class ProjectGithubWebhook(models.Model):
         return events or ["push"]
 
     def _webhook_url(self):
-        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        # base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        base_url = "https://a0d6ef0be552.ngrok-free.app"
         return f"{base_url}/github/webhook/{self.id}"

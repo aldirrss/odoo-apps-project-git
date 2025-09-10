@@ -45,7 +45,7 @@ class Project(models.Model):
     )
 
     # Webhook management
-    webhook_id = fields.Many2one(
+    project_webhook_id = fields.Many2one(
         comodel_name="project.github.webhook",
         string="Webhook Configuration", help="Webhook configured for this project."
     )
@@ -256,10 +256,10 @@ class Project(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'GitHub Webhook Configuration',
-            'res_model': 'project.github.webhook',
+            'res_model': 'project.github.create.webhook',
             'view_mode': 'form',
             'target': 'new',
-            'context': {'default_project_id': self.id, 'default_create_webhook': True},
+            'context': {'default_project_id': self.id},
         }
 
     def _get_log_message_template(self):

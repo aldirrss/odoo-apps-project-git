@@ -1,8 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        
-        $END$
-    
+        <record id="project_github_create_webhook_form_view" model="ir.ui.view">
+            <field name="name">project.github.create.webhook.form</field>
+            <field name="model">project.github.create.webhook</field>
+            <field name="arch" type="xml">
+                <form string="GitHub Webhook">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="project_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
+                                <field name="webhook_name"/>
+                                <field name="webhook_secret" password="True"/>
+                                <field name="enable_ssl_verification"/>
+                            </group>
+                            <group string="Events">
+                                <field name="push_events"/>
+                                <field name="pull_request_events"/>
+                                <field name="issues_events"/>
+                                <field name="workflow_jobs_events"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Save &amp; Close" type="object" name="action_push_webhook" class="btn-primary"/>
+                        <button string="Discard" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
     </data>
 </odoo>
