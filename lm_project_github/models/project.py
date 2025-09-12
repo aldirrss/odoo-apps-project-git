@@ -67,7 +67,7 @@ class Project(models.Model):
     @api.constrains('auto_create_issues')
     def _check_auto_create_issues(self):
         for project in self:
-            if not project.auto_create_issues:
+            if not project.auto_create_issues and project.automation_workflow and project.enable_github:
                 raise UserError(_("To enable 'Automation Workflow', 'Auto-create Issues on Tasks Creation' must be enabled."))
 
     def _header_authentication(self):

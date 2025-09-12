@@ -17,6 +17,7 @@
         'wizard/project_github_create_webhook_views.xml',
 
         'views/project_views.xml',
+        'views/project_task_views.xml',
         'views/project_github_repository_views.xml',
         'views/project_github_branch_views.xml',
         'views/project_github_commit_views.xml',
